@@ -21,7 +21,14 @@ public class ClassServiceTest
         var happyRequest = new CreateTaskRequest("Test Task", "Dummy Descritopn", DateTime.UtcNow.AddDays(3));
 
         var createTaskResult = await taskService.CreateTaskAsync(happyRequest);
-        
+        Assert.True(createTaskResult.IsOk());
+
+        var taskKey = createTaskResult.GetVal();
+        Assert.False(string.IsNullOrWhiteSpace(taskKey));
+
+        var fetchFile = await this.service.GetAsync(taskKey!);
+        Assert.NotNull(fetchFile);
+        Assert.Equal("Test Task", fetchFile!.Name);
     }
 }
 
