@@ -35,37 +35,35 @@ public class ClassServiceTest
     {
         var taskService = new TaskService(this.service);
 
-        var originalRequest = new CreateTaskAsync("Original Task", "Original Description", DateTime.UtcNow.AddDays(3));
-        var createRequest = await taskService.CreateTaskAsync(originalRequest);
-        Assert.True(createRequest.IsOk());
+        var originalTaskResult = TaskModel.CreateTask(new CreateTaskRequest("Original Task", "Original Description", DateTime.UtcNow.AddDays(3)));
+        Assert.True(originalTaskResult.IsOk());
+        var originalTask = originalTaskResult.GetVal();
+        await this.service.SaveAsync(originalTask);
 
-        var taskKey = createRequest.GetVal();
-        Asset.False(string.IsNullOrWhiteSpace(taskKey));
 
-        var fetchFile = await this.service.GetAsync(taskKey!);
+        var taskKey = originalTask.Key;
+        Assert.False(string.IsNullOrWhiteSpace(taskKey));
+
+        var fetchFile = await this.service.GetAsync(taskKey);
         Assert.NotNull(fetchFile);
         Assert.Equal("Original Task", fetchFile!.Name);
 
 
-        var updateRequest = new UpdateTaskRequest
-        {
-            Key = taskKey!,
-            Task = new TaskModel
-            {
-                Name = "Update Task",
-                Description = "Update Description",
-                DueDate = DateTime.UtcNow.AddDays(6)
-            }
-        };
-        var updateResult = await taskService.UpdateTaskAsync(updateRequest);
-        Assert.True(updateResult.IsOk());
+        var updatedTaskResult = TaskModel.CreateTask(
+            new CreateTaskRequest("Update Task","Update Description", DateTime.UtcNow.AddDays(6)
+        ));
+        Assert.True(updatedTaskResult.IsOk());
+        var updatedTask = updatedTaskResult.GetVal();
+        var updatedTaskRequest = new UpdateTaskRequest(taskKey, updatedTask);
 
-        var updatedTask = await this.service.GetAsync(taskKey!);
-        Assert.NotNull(updatedTask);
-        Assert.Equal("Update Task", updatedTask!.Name);
-        Assert.Equal("Update Description", updatedTask.Description);
-        Assert.Equal(taskKey, updatedTask.Key);
+        var updateTaskResult = await taskService.UpdateTaskAsync(updatedTaskRequest);
+        Assert.True(updateTaskResult.IsOk());
 
+        var updated = await this.service.GetAsync(taskKey);
+        Assert.NotNull(updated);
+        Assert.Equal("Update Task", updated!.Name);
+        Assert.Equal("Update Description", updated.Description);
+        Assert.Equal(taskKey, updated.Key);
     }
 }
 
