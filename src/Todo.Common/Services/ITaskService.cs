@@ -49,9 +49,9 @@ namespace Todo.Common.Services
                 return Result.Err($"There is no task with key ${request.Key}");
             }
 
-            var updatedTask = TaskModel.Update(task, request.Task);
+            var updatedTask = TaskModel.Update(task, request.Task.Name, request.Task.Description, request.Task.DueDate);
 
-            await this.fileDataService.SaveAsync(task);
+            await this.fileDataService.SaveAsync(updatedTask);
             return Result.Ok();
             
         }

@@ -42,13 +42,13 @@ namespace Todo.Common.Models
                 DueDate = request.DueDate
             });
         }
-        public static TaskModel Update(TaskModel oldTask, TaskModel newTask){
+        public static TaskModel Update(TaskModel oldTask, string name, string description, DateTime dueDate){
             return new TaskModel
             {
                 Key = oldTask.Key,
-                Name = newTask.Name,
-                Description = newTask.Description,
-                DueDate = newTask.DueDate,
+                Name = name,
+                Description = description,
+                DueDate = dueDate,
             };
         }
     }
