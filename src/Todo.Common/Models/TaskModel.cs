@@ -4,7 +4,7 @@ namespace Todo.Common.Models
 {
     public class TaskModel
     {
-        private TaskModel()
+        internal TaskModel()
         {
             //MUST:
             //Exist
@@ -29,17 +29,27 @@ namespace Todo.Common.Models
         public static Result<TaskModel> CreateTask(CreateTaskRequest request)
         {
             var validationResult = request.IsValid();
-            if(validationResult.IsErr())
+            if (validationResult.IsErr())
             {
                 return Result<TaskModel>.Err(validationResult.GetErr());
             }
 
-            return Result<TaskModel>.Ok(new TaskModel {
+            return Result<TaskModel>.Ok(new TaskModel
+            {
                 Key = Guid.NewGuid().ToString(),
                 Name = request.Name,
                 Description = request.Description,
                 DueDate = request.DueDate
             });
+        }
+        public static TaskModel Update(TaskModel oldTask, TaskModel newTask){
+            return new TaskModel
+            {
+                Key = oldTask.Key,
+                Name = newTask.Name,
+                Description = newTask.Description,
+                DueDate = newTask.DueDate,
+            };
         }
     }
 }

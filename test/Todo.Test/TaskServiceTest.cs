@@ -19,7 +19,6 @@ public class ClassServiceTest
 
 
         var happyRequest = new CreateTaskRequest("Test Task", "Dummy Descritopn", DateTime.UtcNow.AddDays(3));
-
         var createTaskResult = await taskService.CreateTaskAsync(happyRequest);
         Assert.True(createTaskResult.IsOk());
 
@@ -29,6 +28,44 @@ public class ClassServiceTest
         var fetchFile = await this.service.GetAsync(taskKey!);
         Assert.NotNull(fetchFile);
         Assert.Equal("Test Task", fetchFile!.Name);
+    }
+
+    [Fact]
+    public async Task UpdateTaskSuceeds()
+    {
+        var taskService = new TaskService(this.service);
+
+        var originalRequest = new CreateTaskAsync("Original Task", "Original Description", DateTime.UtcNow.AddDays(3));
+        var createRequest = await taskService.CreateTaskAsync(originalRequest);
+        Assert.True(createRequest.IsOk());
+
+        var taskKey = createRequest.GetVal();
+        Asset.False(string.IsNullOrWhiteSpace(taskKey));
+
+        var fetchFile = await this.service.GetAsync(taskKey!);
+        Assert.NotNull(fetchFile);
+        Assert.Equal("Original Task", fetchFile!.Name);
+
+
+        var updateRequest = new UpdateTaskRequest
+        {
+            Key = taskKey!,
+            Task = new TaskModel
+            {
+                Name = "Update Task",
+                Description = "Update Description",
+                DueDate = DateTime.UtcNow.AddDays(6)
+            }
+        };
+        var updateResult = await taskService.UpdateTaskAsync(updateRequest);
+        Assert.True(updateResult.IsOk());
+
+        var updatedTask = await this.service.GetAsync(taskKey!);
+        Assert.NotNull(updatedTask);
+        Assert.Equal("Update Task", updatedTask!.Name);
+        Assert.Equal("Update Description", updatedTask.Description);
+        Assert.Equal(taskKey, updatedTask.Key);
+
     }
 }
 
@@ -43,12 +80,12 @@ internal class DummyFileDataService : IFileDataService
 
     public void Seed(IEnumerable<TaskModel> taskModels)
     {
-        foreach(var t in taskModels)
+        foreach (var t in taskModels)
         {
             this.data.Add(t.Key, t);
         }
     }
-        
+
 
     public async Task<TaskModel?> GetAsync(string key)
     {
