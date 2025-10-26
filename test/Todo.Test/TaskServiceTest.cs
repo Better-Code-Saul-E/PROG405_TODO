@@ -37,7 +37,7 @@ public class ClassServiceTest
 
         var originalTaskResult = TaskModel.CreateTask(new CreateTaskRequest("Original Task", "Original Description", DateTime.UtcNow.AddDays(3)));
         Assert.True(originalTaskResult.IsOk());
-        var originalTask = originalTaskResult.GetVal();
+        var originalTask = originalTaskResult.GetVal()!;
         await this.service.SaveAsync(originalTask);
 
 
@@ -53,7 +53,7 @@ public class ClassServiceTest
             new CreateTaskRequest("Update Task","Update Description", DateTime.UtcNow.AddDays(6)
         ));
         Assert.True(updatedTaskResult.IsOk());
-        var updatedTask = updatedTaskResult.GetVal();
+        var updatedTask = updatedTaskResult.GetVal()!;
         var updatedTaskRequest = new UpdateTaskRequest(taskKey, updatedTask);
 
         var updateTaskResult = await taskService.UpdateTaskAsync(updatedTaskRequest);
